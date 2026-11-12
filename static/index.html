@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Intelligence Predictor</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101827;
+            color: white;
+            padding: 35px 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #55d6a5;
+            font-size: 30px;
+        }
+
+        .card {
+            background: #1c293b;
+            padding: 28px;
+            border-radius: 14px;
+            border: 1px solid #34445b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 7px;
+            border: 1px solid #475569;
+            background: #101827;
+            color: white;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            background: #22c58b;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #18a875;
+        }
+
+        #result {
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 10px;
+            background: #123b35;
+            text-align: center;
+        }
+
+        #prediction {
+            font-size: 34px;
+            color: #55e6ad;
+            margin: 12px;
+        }
+
+        #error {
+            color: #ff8585;
+            margin-top: 15px;
+        }
+
+        @media(max-width: 550px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Crime Intelligence Predictor</h1>
+        <p>AI-powered prediction of total IPC crimes</p>
+    </header>
+
+    <div class="card">
+
+        <h2>Enter Crime Statistics</h2>
+
+        <form id="predictionForm">
+
+            <div class="form-grid">
+
+                <div>
+                    <label>State / UT</label>
+                    <input id="state_ut" value="A & N ISLANDS" required>
+                </div>
+
+                <div>
+                    <label>District</label>
+                    <input id="district" value="ANDAMAN" required>
+                </div>
+
+                <div>
+                    <label>Prediction Year</label>
+                    <input id="year" type="number"
+                           value="2010" min="2003" max="2100" required>
+                </div>
+
+                <div>
+                    <label>Previous Year Crimes</label>
+                    <input id="ipc_lag_1" type="number"
+                           value="921" min="0" required>
+                </div>
+
+                <div>
+                    <label>Crimes Two Years Ago</label>
+                    <input id="ipc_lag_2" type="number"
+                           value="859" min="0" required>
+                </div>
+
+                <div>
+                    <label>Two-Year Historical Average</label>
+                    <input id="historical_avg_2" type="number"
+                           value="890" min="0" required>
+                </div>
+
+            </div>
+
+            <button type="submit">Predict Crime Count</button>
+
+        </form>
+
+        <div id="result">
+            <p>Predicted Total IPC Crimes</p>
+            <div id="prediction">--</div>
+            <p id="location"></p>
+        </div>
+
+        <p id="error"></p>
+
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("predictionForm");
+
+    form.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        document.getElementById("error").textContent = "";
+        document.getElementById("result").style.display = "none";
+
+        const payload = {
+            state_ut: document.getElementById("state_ut").value,
+            district: document.getElementById("district").value,
+            year: Number(document.getElementById("year").value),
+            ipc_lag_1: Number(document.getElementById("ipc_lag_1").value),
+            ipc_lag_2: Number(document.getElementById("ipc_lag_2").value),
+            historical_avg_2: Number(
+                document.getElementById("historical_avg_2").value
+            )
+        };
+
+        try {
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.detail?.[0]?.msg || "Prediction failed"
+                );
+            }
+
+            document.getElementById("prediction").textContent =
+                data.predicted_total_ipc_crimes.toLocaleString();
+
+            document.getElementById("location").textContent =
+                data.district + ", " + data.state_ut +
+                " | Year: " + data.year;
+
+            document.getElementById("result").style.display = "block";
+
+        } catch (error) {
+
+            document.getElementById("error").textContent =
+                error.message;
+
+        }
+
+    });
+</script>
+
+</body>
+</html>
