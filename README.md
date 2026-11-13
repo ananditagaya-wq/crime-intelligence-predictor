@@ -159,8 +159,6 @@ https://github.com/ananditagaya-wq/crime-intelligence-predictor
 
 B.Tech – Computer Science and Engineering (Data Science)
 
-The NorthCap University
-
 GitHub: https://github.com/ananditagaya-wq
 
 ---
