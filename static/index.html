@@ -1,6 +1,10 @@
 
 <!DOCTYPE html>
 <html lang="en">
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -805,6 +809,31 @@ input:focus, select:focus {
                 </div>
 
             </div>
+            
+<!-- INTERACTIVE INDIA CRIME MAP -->
+<div class="prediction-card" id="indiaMapSection">
+    <h2>Interactive India Crime Map</h2>
+    <p class="section-description">
+        Explore state-wise recorded IPC crimes. Hover over a state
+        for details and click to inspect its crime statistics.
+    </p>
+
+    <div id="indiaMap"
+         style="height: 540px; width: 100%; border-radius: 12px;
+                border: 1px solid #E2D3C2; background: #FFFCF8;">
+    </div>
+
+    <div id="mapStateDetails"
+         style="margin-top: 16px; padding: 16px;
+                background: #D6E9FA; border-radius: 10px;">
+        Select a state on the map to view its statistics.
+    </div>
+
+    <p class="section-description" style="margin-top: 12px;">
+        Source: Historical IPC crime dataset, 2001–2012.
+        Map boundaries are for visualization, not official survey use.
+    </p>
+</div>
 
             <!-- TREND CHART -->
 
@@ -1043,7 +1072,7 @@ input:focus, select:focus {
 <!-- =====================================
      JAVASCRIPT
 ===================================== -->
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 
 const API = "";
@@ -1409,6 +1438,7 @@ async function loadOverview() {
         }
 
         renderOverview(data);
+        loadIndiaMap(startYear, endYear);
 
     } catch(error) {
 
@@ -1693,7 +1723,212 @@ function renderInsights(insights) {
     });
 
 }
+// =====================================
+// INTERACTIVE INDIA CRIME MAP
+// =====================================
 
+let indiaMap = null;
+let indiaGeoLayer = null;
+let indiaMapData = [];
+
+function initializeIndiaMap() {
+
+    if (indiaMap) {
+        return;
+    }
+
+    indiaMap = L.map("indiaMap", {
+        scrollWheelZoom: false
+    }).setView([22.5, 82.5], 4.5);
+
+    L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        attribution: "&copy; OpenStreetMap contributors",
+        maxZoom: 10
+    }
+).addTo(indiaMap);
+
+    setTimeout(() => {
+        indiaMap.invalidateSize();
+    }, 300);
+}
+// =====================================
+// MATCH GEOJSON STATES WITH DATASET
+// =====================================
+
+function getHistoricalStateKey(mapState) {
+
+    const stateMapping = {
+        "Andaman and Nicobar Islands": "A & N ISLANDS",
+        "Dadra and Nagar Haveli and Daman and Diu": "D & N HAVELI",
+        "Delhi": "DELHI UT",
+        "Jammu and Kashmir": "JAMMU & KASHMIR",
+        "Ladakh": "JAMMU & KASHMIR",
+        "Telangana": "ANDHRA PRADESH"
+    };
+
+    return stateMapping[mapState] || mapState.toUpperCase();
+}
+// =====================================
+// LOAD AND RENDER INDIA CRIME MAP
+// =====================================
+
+async function loadIndiaMap(startYear, endYear) {
+
+    const token = getToken();
+
+    if (!token) return;
+
+    const mapDetails = document.getElementById("mapStateDetails");
+
+    try {
+
+        initializeIndiaMap();
+
+        mapDetails.textContent = "Loading state crime statistics...";
+
+        const params = new URLSearchParams({
+            start_year: startYear,
+            end_year: endYear
+        });
+
+        const [crimeResponse, geoResponse] = await Promise.all([
+
+            fetch(API + "/api/state-map?" + params.toString(), {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }),
+
+            fetch("/static/india-states.geojson")
+
+        ]);
+
+        if (!crimeResponse.ok || !geoResponse.ok) {
+            throw new Error("Unable to load map data.");
+        }
+
+        const crimeData = await crimeResponse.json();
+        const geoData = await geoResponse.json();
+
+        indiaMapData = crimeData.states || [];
+
+        function getCrimeTotal(mapState) {
+
+            const key = getHistoricalStateKey(mapState);
+
+            // Combine the two historical records for the merged UT.
+            if (
+                mapState ===
+                "Dadra and Nagar Haveli and Daman and Diu"
+            ) {
+                return indiaMapData
+                    .filter(item =>
+                        ["D & N HAVELI", "DAMAN & DIU"]
+                            .includes(item.state.toUpperCase())
+                    )
+                    .reduce((sum, item) => sum + item.total_crimes, 0);
+            }
+
+            const match = indiaMapData.find(
+                item => item.state.toUpperCase() === key
+            );
+
+            return match ? match.total_crimes : 0;
+        }
+
+        const values = geoData.features.map(feature =>
+            getCrimeTotal(feature.properties.st_nm)
+        );
+
+        const maxCrimes = Math.max(...values, 1);
+
+        function getColor(value) {
+
+            const intensity = value / maxCrimes;
+
+            if (value === 0) return "#E8E2DA";
+            if (intensity > 0.75) return "#71351F";
+            if (intensity > 0.50) return "#A45132";
+            if (intensity > 0.25) return "#D18A64";
+
+            return "#F0C6A8";
+        }
+
+        if (indiaGeoLayer) {
+            indiaMap.removeLayer(indiaGeoLayer);
+        }
+
+        indiaGeoLayer = L.geoJSON(geoData, {
+
+            style: function(feature) {
+
+                const total = getCrimeTotal(
+                    feature.properties.st_nm
+                );
+
+                return {
+                    fillColor: getColor(total),
+                    weight: 0.8,
+                    opacity: 1,
+                    color: "#FFFFFF",
+                    fillOpacity: 0.85
+                };
+            },
+
+            onEachFeature: function(feature, layer) {
+
+                const stateName = feature.properties.st_nm;
+                const total = getCrimeTotal(stateName);
+
+                layer.bindTooltip(
+                    "<b>" + stateName + "</b><br>" +
+                    "Recorded crimes: " +
+                    formatNumber(total),
+                    { sticky: true }
+                );
+
+                layer.on("click", function() {
+
+                    mapDetails.innerHTML =
+                        "<h3>" + stateName + "</h3>" +
+                        "<p><b>Total recorded IPC crimes:</b> " +
+                        formatNumber(total) + "</p>" +
+                        "<p><b>Period:</b> " +
+                        startYear + "–" + endYear + "</p>";
+                });
+
+                layer.on("mouseover", function() {
+                    layer.setStyle({
+                        weight: 2,
+                        color: "#3B2418",
+                        fillOpacity: 1
+                    });
+                });
+
+                layer.on("mouseout", function() {
+                    indiaGeoLayer.resetStyle(layer);
+                });
+
+            }
+
+        }).addTo(indiaMap);
+
+        indiaMap.fitBounds(indiaGeoLayer.getBounds());
+
+        mapDetails.textContent =
+            "Select a state on the map to view its statistics.";
+
+    } catch (error) {
+
+        console.error("India map error:", error);
+
+        mapDetails.textContent =
+            "Unable to load the India crime map: " + error.message;
+
+    }
+}
 
 // =====================================
 // APPLY AND RESET FILTERS

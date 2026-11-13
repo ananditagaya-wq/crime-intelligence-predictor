@@ -63,6 +63,11 @@ app = FastAPI(
     version="1.0.0"
 )
 app.include_router(auth_router)
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
+)
 
 
 @app.on_event("startup")
@@ -237,6 +242,52 @@ def get_overview(
             "Crime category counts are reported separately. "
             "Their sum may not equal total IPC crimes."
         )
+    }
+
+# =====================================
+# INDIA MAP API
+# =====================================
+
+@app.get("/api/state-map")
+def get_state_map(
+    start_year: int = Query(default=2001, ge=2001, le=2012),
+    end_year: int = Query(default=2012, ge=2001, le=2012),
+    current_user: dict = Depends(get_current_user)
+):
+    if start_year > end_year:
+        return {"error": "Start year cannot exceed end year."}
+
+    filtered = crime_data[
+        (crime_data["year"] >= start_year) &
+        (crime_data["year"] <= end_year)
+    ].copy()
+
+    if filtered.empty:
+        return {"states": []}
+
+    state_summary = (
+        filtered.groupby("state_ut")
+        .agg(
+            total_crimes=("total_ipc_crimes", "sum"),
+            districts=("district", "nunique")
+        )
+        .reset_index()
+        .sort_values("total_crimes", ascending=False)
+    )
+
+    states = [
+        {
+            "state": row["state_ut"],
+            "total_crimes": int(row["total_crimes"]),
+            "districts": int(row["districts"])
+        }
+        for _, row in state_summary.iterrows()
+    ]
+
+    return {
+        "start_year": start_year,
+        "end_year": end_year,
+        "states": states
     }
 
 
