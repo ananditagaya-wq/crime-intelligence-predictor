@@ -2,202 +2,1168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crime Intelligence Predictor</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crime Intelligence Predictor</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+html {
+    scroll-behavior: smooth;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #101827;
-            color: white;
-            padding: 35px 20px;
-        }
+:root {
+    --primary: #3B2418;
+    --primary-dark: #29180F;
+    --background: #F2E8DA;
+    --white: #FFFFFF;
+    --text: #3B2418;
+    --muted: #725746;
+    --border: #E2D3C2;
+    --success: #26734D;
+    --danger: #B42318;
+    --baby-blue: #8EC5FF;
+    --pale-blue: #D6E9FA;
+}
 
-        .container {
-            max-width: 750px;
-            margin: auto;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
 
-        header h1 {
-            color: #55d6a5;
-            font-size: 30px;
-        }
+button, input, select {
+    font: inherit;
+}
 
-        .card {
-            background: #1c293b;
-            padding: 28px;
-            border-radius: 14px;
-            border: 1px solid #34445b;
-        }
+button {
+    cursor: pointer;
+}
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
+/* =====================================
+   AUTHENTICATION
+===================================== */
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #cbd5e1;
-        }
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+}
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 7px;
-            border: 1px solid #475569;
-            background: #101827;
-            color: white;
-        }
+.auth-card {
+    width: 100%;
+    max-width: 430px;
+    background: var(--white);
+    padding: 38px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 12px 40px rgba(59,36,24,0.10);
+}
 
-        button {
-            width: 100%;
-            margin-top: 25px;
-            padding: 14px;
-            background: #22c58b;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.brand {
+    color: var(--primary);
+    font-size: 25px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 8px;
+}
 
-        button:hover {
-            background: #18a875;
-        }
+.auth-subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-size: 14px;
+}
 
-        #result {
-            display: none;
-            margin-top: 25px;
-            padding: 22px;
-            border-radius: 10px;
-            background: #123b35;
-            text-align: center;
-        }
+.auth-card h2 {
+    font-size: 22px;
+    margin-bottom: 7px;
+}
 
-        #prediction {
-            font-size: 34px;
-            color: #55e6ad;
-            margin: 12px;
-        }
+.auth-card .description {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
 
-        #error {
-            color: #ff8585;
-            margin-top: 15px;
-        }
+.field {
+    margin-bottom: 18px;
+}
 
-        @media(max-width: 550px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+input, select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+    background: white;
+    color: var(--text);
+}
+
+input:focus, select:focus {
+    border-color: var(--baby-blue);
+    box-shadow: 0 0 0 3px rgba(142,197,255,0.25);
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.primary-btn:hover {
+    background: var(--primary-dark);
+}
+
+.primary-btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.switch-text {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 22px;
+}
+
+.switch-text button {
+    border: none;
+    background: none;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.message {
+    margin-top: 15px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.error {
+    color: var(--danger);
+}
+
+.success {
+    color: var(--success);
+}
+
+/* =====================================
+   DASHBOARD NAVIGATION
+===================================== */
+
+#dashboard {
+    display: none;
+    min-height: 100vh;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    min-height: 75px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 4%;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.nav-brand {
+    color: var(--primary);
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.logout-btn {
+    background: var(--pale-blue);
+    color: var(--primary);
+    border: 1px solid var(--baby-blue);
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-weight: 600;
+}
+
+/* =====================================
+   MAIN LAYOUT
+===================================== */
+
+.main-content {
+    max-width: 1400px;
+    margin: 32px auto;
+    padding: 0 24px;
+}
+
+.welcome {
+    margin-bottom: 25px;
+}
+
+.welcome h1 {
+    color: var(--primary);
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.welcome p {
+    color: var(--muted);
+    margin-top: 0;
+}
+
+.prediction-card,
+.stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(59,36,24,0.04);
+}
+
+.prediction-card {
+    padding: 26px;
+    margin-bottom: 22px;
+}
+
+.prediction-card h2 {
+    margin-top: 0;
+    font-size: 21px;
+}
+
+.section-description {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* =====================================
+   FILTERS
+===================================== */
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    align-items: end;
+}
+
+.filter-grid .field {
+    margin-bottom: 0;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.filter-actions .primary-btn {
+    width: auto;
+    min-width: 180px;
+}
+
+.reset-btn {
+    background: var(--pale-blue);
+    color: var(--primary);
+    border: 1px solid var(--baby-blue);
+    padding: 12px 20px;
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+/* =====================================
+   KPI CARDS
+===================================== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin: 25px 0;
+}
+
+.stat-card {
+    padding: 23px;
+    border-top: 4px solid var(--baby-blue);
+}
+
+.stat-card p {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 12px;
+}
+
+.stat-card h3 {
+    color: var(--primary);
+    font-size: 25px;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+/* =====================================
+   CHART
+===================================== */
+
+.chart-area {
+    min-height: 280px;
+    padding: 15px;
+    background: #FFFCF8;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+#trendChart svg {
+    width: 100%;
+    min-width: 500px;
+    height: 270px;
+    display: block;
+}
+
+.chart-label {
+    fill: var(--muted);
+    font-size: 12px;
+}
+
+.chart-grid-line {
+    stroke: #E2D3C2;
+    stroke-dasharray: 4 5;
+}
+
+.chart-line {
+    fill: none;
+    stroke: #3B2418;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.chart-point {
+    fill: #8EC5FF;
+    stroke: #3B2418;
+    stroke-width: 2;
+}
+
+/* =====================================
+   ANALYTICS PANELS
+===================================== */
+
+.dashboard-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.data-row {
+    padding: 12px;
+    background: #FFFCF8;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.data-row-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+    font-size: 13px;
+}
+
+.data-row-header strong {
+    overflow-wrap: anywhere;
+}
+
+.bar-track {
+    height: 9px;
+    border-radius: 20px;
+    background: var(--pale-blue);
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: var(--baby-blue);
+}
+
+.insight-item {
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background: #FFFCF8;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.data-note {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 9px;
+    background: var(--pale-blue);
+    color: var(--primary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.empty-state {
+    color: var(--muted);
+    font-size: 14px;
+    padding: 18px;
+    text-align: center;
+}
+
+/* =====================================
+   PREDICTION
+===================================== */
+
+#predictionSection {
+    margin-top: 35px;
+}
+
+#performanceSection {
+    margin-top: 35px;
+    scroll-margin-top: 95px;
+}
+
+#result {
+    display: none;
+    margin-top: 25px;
+    background: var(--pale-blue);
+    border: 1px solid var(--baby-blue);
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+}
+
+#result p {
+    color: var(--muted);
+    margin: 0;
+}
+
+#prediction {
+    color: var(--primary);
+    font-size: 38px;
+    font-weight: 800;
+    margin: 12px;
+}
+
+#location {
+    font-size: 13px;
+}
+
+#predictionError {
+    margin-top: 15px;
+}
+
+/* =====================================
+   FOOTER AND RESPONSIVE DESIGN
+===================================== */
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 25px;
+}
+
+@media(max-width: 950px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .navbar {
+        justify-content: center;
+    }
+}
+
+@media(max-width: 650px) {
+    .form-grid,
+    .stats-grid,
+    .filter-grid,
+    .dashboard-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-card {
+        padding: 26px;
+    }
+
+    .navbar {
+        padding: 15px;
+    }
+
+    .nav-brand {
+        font-size: 17px;
+    }
+
+    .nav-links {
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    .welcome h1 {
+        font-size: 23px;
+    }
+
+    .main-content {
+        padding: 0 14px;
+    }
+
+    .prediction-card {
+        padding: 20px;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+    }
+
+    .filter-actions .primary-btn {
+        width: 100%;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- =====================================
+     LOGIN AND SIGNUP
+===================================== -->
 
-    <header>
-        <h1>Crime Intelligence Predictor</h1>
-        <p>AI-powered prediction of total IPC crimes</p>
-    </header>
+<section id="authPage" class="auth-page">
 
-    <div class="card">
+    <div class="auth-card">
 
-        <h2>Enter Crime Statistics</h2>
+        <div class="brand">Crime Intelligence</div>
 
-        <form id="predictionForm">
+        <div class="auth-subtitle">
+            Historical Crime Analytics & Prediction Platform
+        </div>
 
-            <div class="form-grid">
+        <div id="loginSection">
 
-                <div>
-                    <label>State / UT</label>
-                    <input id="state_ut" value="A & N ISLANDS" required>
+            <h2>Welcome back!</h2>
+            <p class="description">
+                Login to access your dashboard.
+            </p>
+
+            <form id="loginForm">
+
+                <div class="field">
+                    <label>Email Address</label>
+                    <input id="loginEmail" type="email"
+                           placeholder="Enter your email" required>
                 </div>
 
-                <div>
-                    <label>District</label>
-                    <input id="district" value="ANDAMAN" required>
+                <div class="field">
+                    <label>Password</label>
+                    <input id="loginPassword" type="password"
+                           placeholder="Enter your password" required>
                 </div>
 
-                <div>
-                    <label>Prediction Year</label>
-                    <input id="year" type="number"
-                           value="2010" min="2003" max="2100" required>
+                <button class="primary-btn" id="loginButton" type="submit">
+                    Login to Dashboard
+                </button>
+
+            </form>
+
+            <p class="switch-text">
+                Don't have an account?
+                <button type="button" id="showSignup">Create account</button>
+            </p>
+
+        </div>
+
+        <div id="signupSection" style="display:none;">
+
+            <h2>Create your account</h2>
+
+            <p class="description">
+                Register to use Crime Intelligence Predictor.
+            </p>
+
+            <form id="signupForm">
+
+                <div class="field">
+                    <label>Full Name</label>
+                    <input id="signupName" type="text"
+                           minlength="2" maxlength="100"
+                           placeholder="Your name" required>
                 </div>
 
-                <div>
-                    <label>Previous Year Crimes</label>
-                    <input id="ipc_lag_1" type="number"
-                           value="921" min="0" required>
+                <div class="field">
+                    <label>Email Address</label>
+                    <input id="signupEmail" type="email"
+                           placeholder="Your email" required>
                 </div>
 
-                <div>
-                    <label>Crimes Two Years Ago</label>
-                    <input id="ipc_lag_2" type="number"
-                           value="859" min="0" required>
+                <div class="field">
+                    <label>Password</label>
+                    <input id="signupPassword" type="password"
+                           minlength="8" maxlength="128"
+                           placeholder="Minimum 8 characters" required>
                 </div>
 
-                <div>
-                    <label>Two-Year Historical Average</label>
-                    <input id="historical_avg_2" type="number"
-                           value="890" min="0" required>
+                <button class="primary-btn" id="signupButton" type="submit">
+                    Create Account
+                </button>
+
+            </form>
+
+            <p class="switch-text">
+                Already registered?
+                <button type="button" id="showLogin">Login</button>
+            </p>
+
+        </div>
+
+        <div id="authMessage" class="message" aria-live="polite"></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================
+     AUTHENTICATED DASHBOARD
+===================================== -->
+
+<section id="dashboard">
+
+    <nav class="navbar">
+
+        <div class="nav-brand">Crime Intelligence</div>
+
+        <div class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#analytics">Analytics</a>
+            <a href="#performanceSection">Model Performance</a>
+            <a href="#predictionSection">Prediction</a>
+        </div>
+
+        <div class="nav-right">
+            <span class="user-name" id="displayName"></span>
+            <button class="logout-btn" id="logoutButton">Logout</button>
+        </div>
+
+    </nav>
+
+    <main class="main-content">
+
+        <!-- OVERVIEW -->
+
+        <section id="overview">
+
+            <div class="welcome">
+                <h1>Crime Intelligence Overview</h1>
+                <p>
+                    Explore historical IPC crime patterns across India.
+                </p>
+            </div>
+
+            <!-- FILTERS -->
+
+            <div class="prediction-card">
+
+                <h2>Dashboard Filters</h2>
+
+                <div class="filter-grid">
+
+                    <div class="field">
+                        <label>State / UT</label>
+                        <input id="dashboardState"
+                               placeholder="Enter state or All"
+                               value="All">
+                    </div>
+
+                    <div class="field">
+                        <label>District</label>
+                        <input id="dashboardDistrict"
+                               placeholder="Enter district or All"
+                               value="All">
+                    </div>
+
+                    <div class="field">
+                        <label>Start Year</label>
+                        <select id="startYear"></select>
+                    </div>
+
+                    <div class="field">
+                        <label>End Year</label>
+                        <select id="endYear"></select>
+                    </div>
+
+                </div>
+
+                <div class="filter-actions">
+                    <button class="primary-btn" id="applyFilters">
+                        Apply Filters
+                    </button>
+
+                    <button class="reset-btn" id="resetFilters">
+                        Reset Filters
+                    </button>
                 </div>
 
             </div>
 
-            <button type="submit">Predict Crime Count</button>
+            <!-- KPI CARDS -->
 
-        </form>
+            <div class="stats-grid">
 
-        <div id="result">
-            <p>Predicted Total IPC Crimes</p>
-            <div id="prediction">--</div>
-            <p id="location"></p>
+                <div class="stat-card">
+                    <p>Total Recorded IPC Crimes</p>
+                    <h3 id="totalCrimes">Loading...</h3>
+                </div>
+
+                <div class="stat-card">
+                    <p>Average Annual Crimes</p>
+                    <h3 id="averageCrimes">Loading...</h3>
+                </div>
+
+                <div class="stat-card">
+                    <p>Districts Covered</p>
+                    <h3 id="districtCount">Loading...</h3>
+                </div>
+
+                <div class="stat-card">
+                    <p>Crime Categories</p>
+                    <h3 id="categoryCount">Loading...</h3>
+                </div>
+
+            </div>
+
+            <!-- TREND CHART -->
+
+            <div id="analytics" class="prediction-card">
+
+                <h2>Crime Trends & Analysis</h2>
+
+                <p class="section-description">
+                    Historical recorded IPC crimes by year.
+                </p>
+
+                <div id="trendChart" class="chart-area">
+                    Loading crime trend...
+                </div>
+
+            </div>
+
+            <!-- STATE AND CATEGORY PANELS -->
+
+            <div class="dashboard-panels">
+
+                <div class="prediction-card">
+
+                    <h2>Top 5 States / UTs</h2>
+
+                    <p class="section-description">
+                        Highest recorded crime counts in the selected period.
+                    </p>
+
+                    <div id="topStates" class="data-list">
+                        Loading...
+                    </div>
+
+                </div>
+
+                <div class="prediction-card">
+
+                    <h2>Crime Category Distribution</h2>
+
+                    <p class="section-description">
+                        Six highest-count recorded crime categories.
+                    </p>
+
+                    <div id="topCategories" class="data-list">
+                        Loading...
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- KEY INSIGHTS -->
+
+            <div class="prediction-card">
+
+                <h2>Key Insights</h2>
+
+                <p class="section-description">
+                    Automatically generated observations from the selected data.
+                </p>
+
+                <div id="keyInsights">
+                    Loading insights...
+                </div>
+
+                <div id="dataNote" class="data-note"></div>
+
+            </div>
+
+            <p id="dashboardError" class="message error"
+               aria-live="polite"></p>
+
+        </section>
+
+
+<!-- MODEL PERFORMANCE SECTION -->
+<section id="performanceSection">
+    <div class="prediction-card">
+        <h2>Model Performance</h2>
+        <p class="section-description">
+            Evaluation of the selected Residual Random Forest model
+            against the historical baseline on unseen test data.
+        </p>
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Test MAE</label>
+                <h2>465.04</h2>
+                <p>Lower is better</p>
+            </div>
+
+            <div class="field">
+                <label>Test RMSE</label>
+                <h2>1,518.95</h2>
+                <p>Lower is better</p>
+            </div>
+
+            <div class="field">
+                <label>R² Score</label>
+                <h2>0.9948</h2>
+                <p>Coefficient of determination</p>
+            </div>
+
+            <div class="field">
+                <label>MAE Improvement</label>
+                <h2>3.8%</h2>
+                <p>Compared with baseline</p>
+            </div>
         </div>
 
-        <p id="error"></p>
+        <h3>Test Set Comparison</h3>
 
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+                <thead>
+                    <tr>
+                        <th style="padding:12px;">Model</th>
+                        <th style="padding:12px;">MAE</th>
+                        <th style="padding:12px;">RMSE</th>
+                        <th style="padding:12px;">R²</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:12px;">Historical Baseline</td>
+                        <td style="padding:12px;">483.31</td>
+                        <td style="padding:12px;">1,707.79</td>
+                        <td style="padding:12px;">0.9934</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px;"><strong>Residual Random Forest</strong></td>
+                        <td style="padding:12px;"><strong>465.04</strong></td>
+                        <td style="padding:12px;"><strong>1,518.95</strong></td>
+                        <td style="padding:12px;"><strong>0.9948</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="section-description" style="margin-top:18px;">
+            The Residual Random Forest model improves MAE by approximately
+            3.8% and RMSE by approximately 11.1% over the baseline.
+            Evaluation metrics are calculated on the held-out test set.
+        </p>
     </div>
-</div>
+</section>
+
+        <!-- PREDICTION SECTION -->
+
+        <section id="predictionSection">
+
+            <div class="prediction-card">
+
+                <h2>IPC Crime Prediction</h2>
+
+                <p class="section-description">
+                    Enter historical crime statistics to estimate total
+                    IPC crimes for a selected district and year.
+                </p>
+
+                <form id="predictionForm">
+
+                    <div class="form-grid">
+
+                        <div class="field">
+                            <label>State / UT</label>
+                            <input id="state_ut"
+                                   value="A & N ISLANDS" required>
+                        </div>
+
+                        <div class="field">
+                            <label>District</label>
+                            <input id="district"
+                                   value="ANDAMAN" required>
+                        </div>
+
+                        <div class="field">
+                            <label>Prediction Year</label>
+                            <input id="year" type="number"
+                                   value="2010" min="2003" max="2100" required>
+                        </div>
+
+                        <div class="field">
+                            <label>Previous Year Crimes</label>
+                            <input id="ipc_lag_1" type="number"
+                                   value="921" min="0" required>
+                        </div>
+
+                        <div class="field">
+                            <label>Crimes Two Years Ago</label>
+                            <input id="ipc_lag_2" type="number"
+                                   value="859" min="0" required>
+                        </div>
+
+                        <div class="field">
+                            <label>Two-Year Historical Average</label>
+                            <input id="historical_avg_2" type="number"
+                                   value="890" min="0" required>
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="primary-btn"
+                            id="predictButton">
+                        Predict Crime Count
+                    </button>
+
+                </form>
+
+                <div id="result" aria-live="polite">
+
+                    <p>Predicted Total IPC Crimes</p>
+
+                    <div id="prediction">--</div>
+
+                    <p id="location"></p>
+
+                </div>
+
+                <p id="predictionError" class="message"
+                   aria-live="polite"></p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        Crime Intelligence Predictor | Machine Learning Project
+    </footer>
+
+</section>
+
+
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
 
 <script>
-    const form = document.getElementById("predictionForm");
 
-    form.addEventListener("submit", async function(event) {
+const API = "";
+
+const authPage = document.getElementById("authPage");
+const dashboard = document.getElementById("dashboard");
+const authMessage = document.getElementById("authMessage");
+
+let currentUser = null;
+
+
+// =====================================
+// HELPER FUNCTIONS
+// =====================================
+
+function showMessage(element, message, type) {
+    element.textContent = message;
+    element.className = "message " + type;
+}
+
+function setLoading(button, loading, normalText) {
+    button.disabled = loading;
+    button.textContent = loading ? "Please wait..." : normalText;
+}
+
+function getToken() {
+    return sessionStorage.getItem("access_token");
+}
+
+function formatNumber(value) {
+    return Number(value).toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    });
+}
+
+
+// =====================================
+// PAGE NAVIGATION
+// =====================================
+
+function showLoginPage() {
+
+    dashboard.style.display = "none";
+    authPage.style.display = "flex";
+
+    document.getElementById("loginSection").style.display = "block";
+    document.getElementById("signupSection").style.display = "none";
+
+    authMessage.textContent = "";
+}
+
+function showSignupPage() {
+
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("signupSection").style.display = "block";
+
+    authMessage.textContent = "";
+}
+
+function showDashboard(user) {
+
+    currentUser = user;
+
+    authPage.style.display = "none";
+    dashboard.style.display = "block";
+
+    document.getElementById("displayName").textContent =
+        "Welcome, " + user.name;
+
+    initializeYearFilters();
+    loadOverview();
+}
+
+function logout() {
+
+    sessionStorage.removeItem("access_token");
+
+    currentUser = null;
+
+    document.getElementById("predictionForm").reset();
+    document.getElementById("result").style.display = "none";
+    document.getElementById("predictionError").textContent = "";
+
+    showLoginPage();
+}
+
+document.getElementById("showSignup")
+    .addEventListener("click", showSignupPage);
+
+document.getElementById("showLogin")
+    .addEventListener("click", showLoginPage);
+
+document.getElementById("logoutButton")
+    .addEventListener("click", logout);
+
+
+// =====================================
+// SIGNUP
+// =====================================
+
+document.getElementById("signupForm").addEventListener(
+    "submit",
+    async function(event) {
 
         event.preventDefault();
 
-        document.getElementById("error").textContent = "";
-        document.getElementById("result").style.display = "none";
+        const button = document.getElementById("signupButton");
+
+        setLoading(button, true, "Create Account");
+        authMessage.textContent = "";
 
         const payload = {
-            state_ut: document.getElementById("state_ut").value,
-            district: document.getElementById("district").value,
-            year: Number(document.getElementById("year").value),
-            ipc_lag_1: Number(document.getElementById("ipc_lag_1").value),
-            ipc_lag_2: Number(document.getElementById("ipc_lag_2").value),
-            historical_avg_2: Number(
-                document.getElementById("historical_avg_2").value
-            )
+            name: document.getElementById("signupName").value.trim(),
+            email: document.getElementById("signupEmail").value.trim(),
+            password: document.getElementById("signupPassword").value
         };
 
         try {
 
-            const response = await fetch("/predict", {
+            const response = await fetch(API + "/auth/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -209,27 +1175,651 @@
 
             if (!response.ok) {
                 throw new Error(
-                    data.detail?.[0]?.msg || "Prediction failed"
+                    typeof data.detail === "string"
+                        ? data.detail
+                        : "Please check your registration details."
                 );
             }
 
+            document.getElementById("signupForm").reset();
+
+            showLoginPage();
+
+            document.getElementById("loginEmail").value = payload.email;
+
+            showMessage(
+                authMessage,
+                "Account created successfully! Please log in.",
+                "success"
+            );
+
+        } catch(error) {
+
+            showMessage(authMessage, error.message, "error");
+
+        } finally {
+
+            setLoading(button, false, "Create Account");
+
+        }
+
+    }
+);
+
+
+// =====================================
+// LOGIN
+// =====================================
+
+document.getElementById("loginForm").addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        const button = document.getElementById("loginButton");
+
+        setLoading(button, true, "Login to Dashboard");
+        authMessage.textContent = "";
+
+        const payload = {
+            email: document.getElementById("loginEmail").value.trim(),
+            password: document.getElementById("loginPassword").value
+        };
+
+        try {
+
+            const response = await fetch(API + "/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    typeof data.detail === "string"
+                        ? data.detail
+                        : "Login failed. Check your credentials."
+                );
+            }
+
+            sessionStorage.setItem("access_token", data.access_token);
+
+            document.getElementById("loginForm").reset();
+
+            showDashboard(data.user);
+
+        } catch(error) {
+
+            showMessage(authMessage, error.message, "error");
+
+        } finally {
+
+            setLoading(button, false, "Login to Dashboard");
+
+        }
+
+    }
+);
+
+
+// =====================================
+// RESTORE LOGIN SESSION
+// =====================================
+
+async function checkSession() {
+
+    const token = getToken();
+
+    if (!token) {
+        showLoginPage();
+        return;
+    }
+
+    try {
+
+        const response = await fetch(API + "/auth/me", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Session expired");
+        }
+
+        const user = await response.json();
+
+        showDashboard(user);
+
+    } catch(error) {
+
+        sessionStorage.removeItem("access_token");
+
+        showLoginPage();
+
+    }
+
+}
+
+
+// =====================================
+// DASHBOARD YEAR FILTERS
+// =====================================
+
+function initializeYearFilters() {
+
+    const startSelect = document.getElementById("startYear");
+    const endSelect = document.getElementById("endYear");
+
+    if (startSelect.options.length > 0) {
+        return;
+    }
+
+    for (let year = 2001; year <= 2012; year++) {
+
+        const startOption = document.createElement("option");
+        startOption.value = year;
+        startOption.textContent = year;
+
+        const endOption = document.createElement("option");
+        endOption.value = year;
+        endOption.textContent = year;
+
+        startSelect.appendChild(startOption);
+        endSelect.appendChild(endOption);
+
+    }
+
+    startSelect.value = "2001";
+    endSelect.value = "2012";
+
+}
+
+
+// =====================================
+// LOAD OVERVIEW DATA FROM FASTAPI
+// =====================================
+
+async function loadOverview() {
+
+    const token = getToken();
+
+    if (!token) {
+        logout();
+        return;
+    }
+
+    const errorBox = document.getElementById("dashboardError");
+
+    errorBox.textContent = "";
+
+    document.getElementById("totalCrimes").textContent = "Loading...";
+    document.getElementById("averageCrimes").textContent = "Loading...";
+    document.getElementById("districtCount").textContent = "Loading...";
+    document.getElementById("categoryCount").textContent = "Loading...";
+
+    const state = document.getElementById("dashboardState").value.trim() || "All";
+    const district = document.getElementById("dashboardDistrict").value.trim() || "All";
+    const startYear = Number(document.getElementById("startYear").value);
+    const endYear = Number(document.getElementById("endYear").value);
+
+    if (startYear > endYear) {
+        errorBox.textContent = "Start year cannot exceed end year.";
+        return;
+    }
+
+    const params = new URLSearchParams({
+        state_ut: state,
+        district: district,
+        start_year: startYear,
+        end_year: endYear
+    });
+
+    try {
+
+        const response = await fetch(
+            API + "/api/overview?" + params.toString(),
+            {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+            logout();
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.detail || data.error || "Unable to load dashboard."
+            );
+        }
+
+        if (data.message) {
+            throw new Error(data.message);
+        }
+
+        renderOverview(data);
+
+    } catch(error) {
+
+        errorBox.textContent = error.message;
+
+        document.getElementById("trendChart").textContent =
+            "Unable to load crime trend.";
+
+        document.getElementById("topStates").textContent =
+            "No data available.";
+
+        document.getElementById("topCategories").textContent =
+            "No data available.";
+
+        document.getElementById("keyInsights").textContent =
+            "Insights unavailable.";
+
+    }
+
+}
+
+
+// =====================================
+// RENDER OVERVIEW
+// =====================================
+
+function renderOverview(data) {
+
+    const kpis = data.kpis;
+
+    document.getElementById("totalCrimes").textContent =
+        formatNumber(kpis.total_ipc_crimes);
+
+    document.getElementById("averageCrimes").textContent =
+        formatNumber(kpis.average_annual_crimes);
+
+    document.getElementById("districtCount").textContent =
+        formatNumber(kpis.districts_covered);
+
+    document.getElementById("categoryCount").textContent =
+        formatNumber(kpis.crime_categories);
+
+    renderTrend(data.trend);
+    renderRankings("topStates", data.top_states, "state_ut");
+    renderRankings("topCategories", data.categories, "category");
+    renderInsights(data.insights);
+
+    document.getElementById("dataNote").textContent =
+        data.data_note || "";
+
+}
+
+
+// =====================================
+// RENDER TREND CHART
+// =====================================
+
+function renderTrend(trend) {
+
+    const container = document.getElementById("trendChart");
+
+    container.innerHTML = "";
+
+    if (!trend || trend.length === 0) {
+        container.textContent = "No trend data available.";
+        return;
+    }
+
+    const width = 800;
+    const height = 270;
+
+    const left = 65;
+    const right = 25;
+    const top = 25;
+    const bottom = 45;
+
+    const chartWidth = width - left - right;
+    const chartHeight = height - top - bottom;
+
+    const values = trend.map(item => Number(item.total_ipc_crimes));
+    const maxValue = Math.max(...values, 1);
+
+    const points = trend.map((item, index) => {
+
+        const x = trend.length === 1
+            ? left + chartWidth / 2
+            : left + (index / (trend.length - 1)) * chartWidth;
+
+        const y = top + chartHeight -
+            (Number(item.total_ipc_crimes) / maxValue) * chartHeight;
+
+        return {
+            x: x,
+            y: y,
+            year: item.year,
+            value: item.total_ipc_crimes
+        };
+
+    });
+
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    const svg = document.createElementNS(svgNS, "svg");
+
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Historical crime trend chart");
+
+    // Horizontal grid lines
+
+    for (let i = 0; i <= 4; i++) {
+
+        const y = top + (chartHeight / 4) * i;
+
+        const line = document.createElementNS(svgNS, "line");
+
+        line.setAttribute("x1", left);
+        line.setAttribute("x2", width - right);
+        line.setAttribute("y1", y);
+        line.setAttribute("y2", y);
+        line.setAttribute("class", "chart-grid-line");
+
+        svg.appendChild(line);
+
+    }
+
+    // Trend line
+
+    const polyline = document.createElementNS(svgNS, "polyline");
+
+    polyline.setAttribute(
+        "points",
+        points.map(p => `${p.x},${p.y}`).join(" ")
+    );
+
+    polyline.setAttribute("class", "chart-line");
+
+    svg.appendChild(polyline);
+
+    // Points and year labels
+
+    points.forEach(point => {
+
+        const circle = document.createElementNS(svgNS, "circle");
+
+        circle.setAttribute("cx", point.x);
+        circle.setAttribute("cy", point.y);
+        circle.setAttribute("r", "5");
+        circle.setAttribute("class", "chart-point");
+
+        const tooltip = document.createElementNS(svgNS, "title");
+
+        tooltip.textContent =
+            point.year + ": " + formatNumber(point.value) + " crimes";
+
+        circle.appendChild(tooltip);
+        svg.appendChild(circle);
+
+        const label = document.createElementNS(svgNS, "text");
+
+        label.setAttribute("x", point.x);
+        label.setAttribute("y", height - 13);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("class", "chart-label");
+        label.textContent = point.year;
+
+        svg.appendChild(label);
+
+    });
+
+    // Chart title/value axis labels
+
+    const axisLabel = document.createElementNS(svgNS, "text");
+
+    axisLabel.setAttribute("x", 10);
+    axisLabel.setAttribute("y", 16);
+    axisLabel.setAttribute("class", "chart-label");
+    axisLabel.textContent = "Recorded crimes";
+
+    svg.appendChild(axisLabel);
+
+    container.appendChild(svg);
+
+}
+
+
+// =====================================
+// RENDER STATE AND CATEGORY RANKINGS
+// =====================================
+
+function renderRankings(containerId, items, nameField) {
+
+    const container = document.getElementById(containerId);
+
+    container.innerHTML = "";
+
+    if (!items || items.length === 0) {
+
+        container.textContent = "No records available.";
+        return;
+
+    }
+
+    const maximum = Math.max(
+        ...items.map(item => Number(
+            item.total_ipc_crimes ?? item.count
+        )),
+        1
+    );
+
+    items.forEach((item, index) => {
+
+        const name = String(item[nameField] || "")
+            .replaceAll("_", " ")
+            .replace(/\b\w/g, letter => letter.toUpperCase());
+
+        const value = Number(
+            item.total_ipc_crimes ?? item.count
+        );
+
+        const row = document.createElement("div");
+        row.className = "data-row";
+
+        const header = document.createElement("div");
+        header.className = "data-row-header";
+
+        const title = document.createElement("strong");
+        title.textContent = (index + 1) + ". " + name;
+
+        const amount = document.createElement("span");
+        amount.textContent = formatNumber(value);
+
+        header.appendChild(title);
+        header.appendChild(amount);
+
+        const track = document.createElement("div");
+        track.className = "bar-track";
+
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+
+        fill.style.width = Math.max(0, value / maximum * 100) + "%";
+
+        track.appendChild(fill);
+
+        row.appendChild(header);
+        row.appendChild(track);
+
+        container.appendChild(row);
+
+    });
+
+}
+
+
+// =====================================
+// RENDER AUTOMATIC KEY INSIGHTS
+// =====================================
+
+function renderInsights(insights) {
+
+    const container = document.getElementById("keyInsights");
+
+    container.innerHTML = "";
+
+    if (!insights || insights.length === 0) {
+
+        container.textContent = "No insights available.";
+        return;
+
+    }
+
+    insights.forEach(insight => {
+
+        const item = document.createElement("div");
+
+        item.className = "insight-item";
+        item.textContent = insight;
+
+        container.appendChild(item);
+
+    });
+
+}
+
+
+// =====================================
+// APPLY AND RESET FILTERS
+// =====================================
+
+document.getElementById("applyFilters")
+    .addEventListener("click", loadOverview);
+
+document.getElementById("resetFilters")
+    .addEventListener("click", function() {
+
+        document.getElementById("dashboardState").value = "All";
+        document.getElementById("dashboardDistrict").value = "All";
+        document.getElementById("startYear").value = "2001";
+        document.getElementById("endYear").value = "2012";
+
+        loadOverview();
+
+    });
+
+
+// =====================================
+// CRIME PREDICTION
+// =====================================
+
+document.getElementById("predictionForm").addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        const token = getToken();
+
+        if (!token) {
+            logout();
+            return;
+        }
+
+        const button = document.getElementById("predictButton");
+        const result = document.getElementById("result");
+        const errorBox = document.getElementById("predictionError");
+
+        errorBox.textContent = "";
+        result.style.display = "none";
+
+        setLoading(button, true, "Predict Crime Count");
+
+        const payload = {
+
+            state_ut: document.getElementById("state_ut").value.trim(),
+
+            district: document.getElementById("district").value.trim(),
+
+            year: Number(document.getElementById("year").value),
+
+            ipc_lag_1: Number(document.getElementById("ipc_lag_1").value),
+
+            ipc_lag_2: Number(document.getElementById("ipc_lag_2").value),
+
+            historical_avg_2: Number(
+                document.getElementById("historical_avg_2").value
+            )
+
+        };
+
+        try {
+
+            const response = await fetch(API + "/predict", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+
+                body: JSON.stringify(payload)
+
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+
+            if (!response.ok) {
+
+                throw new Error(
+                    typeof data.detail === "string"
+                        ? data.detail
+                        : "Please check your prediction inputs."
+                );
+
+            }
+
             document.getElementById("prediction").textContent =
-                data.predicted_total_ipc_crimes.toLocaleString();
+                formatNumber(data.predicted_total_ipc_crimes);
 
             document.getElementById("location").textContent =
                 data.district + ", " + data.state_ut +
                 " | Year: " + data.year;
 
-            document.getElementById("result").style.display = "block";
+            result.style.display = "block";
 
-        } catch (error) {
+        } catch(error) {
 
-            document.getElementById("error").textContent =
-                error.message;
+            showMessage(errorBox, error.message, "error");
+
+        } finally {
+
+            setLoading(button, false, "Predict Crime Count");
 
         }
 
-    });
+    }
+);
+
+
+// =====================================
+// START APPLICATION
+// =====================================
+
+checkSession();
+
 </script>
 
 </body>

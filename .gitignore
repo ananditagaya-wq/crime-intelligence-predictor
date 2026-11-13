@@ -27,3 +27,5 @@ Thumbs.db
 .env
 # Windows system files
 desktop.ini
+# Authentication database
+auth/users.db
